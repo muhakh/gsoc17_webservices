@@ -101,7 +101,7 @@ class ApiRouter extends Router
 
 		// Get the path from the route and remove and leading or trailing slash.
 		$route = trim(JUri::getInstance()->getPath(), '/');
-		$query = trim(JUri::getInstance()->getQuery(true), '/');
+		$query = JUri::getInstance()->getQuery(true);
 
 		// Iterate through all of the known routes looking for a match.
 		foreach ($this->routes[$method] as $rule)

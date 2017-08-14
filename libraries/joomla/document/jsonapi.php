@@ -13,12 +13,12 @@ use Tobscure\JsonApi\Document;
 use Tobscure\JsonApi\ElementInterface;
 
 /**
- * JDocumentApiJsonapi class, provides an easy interface to parse output in JSON-API format.
+ * JDocumentJsonapi class, provides an easy interface to parse output in JSON-API format.
  *
  * @link   http://www.jsonapi.org/
  * @since  __DEPLOY VERSION__
  */
-class JDocumentApiJsonapi extends JDocumentJson implements JsonSerializable
+class JDocumentJsonapi extends JDocumentJson implements JsonSerializable
 {
 	/**
 	 * The JsonApi Document object.
@@ -41,6 +41,7 @@ class JDocumentApiJsonapi extends JDocumentJson implements JsonSerializable
 
 		// Set mime type to JSON-API
 		$this->_mime = 'application/vnd.api+json';
+		$this->_type = 'jsonapi';
 
 		if (array_key_exists('api_document', $options) && $options['api_document'] instanceof Document)
 		{
@@ -157,5 +158,22 @@ class JDocumentApiJsonapi extends JDocumentJson implements JsonSerializable
 	public function jsonSerialize()
 	{
 		return $this->toArray();
+	}
+
+	/**
+	 * Add a link to the output.
+	 *
+	 * @param   string  $key    The name of the link
+	 * @param   string  $value  The link
+	 *
+	 * @return  $this
+	 *
+	 * @since  __DEPLOY_VERSION__
+	 */
+	public function addLink($key, $value)
+	{
+		$this->document->addLink($key, $value);
+
+		return $this;
 	}
 }

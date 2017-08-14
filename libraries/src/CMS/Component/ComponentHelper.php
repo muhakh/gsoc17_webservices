@@ -12,6 +12,7 @@ defined('JPATH_PLATFORM') or die;
 
 use Joomla\CMS\Access\Access;
 use Joomla\CMS\Component\Exception\MissingException;
+use Joomla\CMS\Dispatcher\ApiDispatcher;
 use Joomla\Registry\Registry;
 use Joomla\CMS\Dispatcher\DispatcherInterface;
 
@@ -306,13 +307,13 @@ class ComponentHelper
 	 */
 	public static function renderComponent($option, $params = array())
 	{
-		$app = \JFactory::getApplication();
+		$app  = \JFactory::getApplication();
+		$lang = \JFactory::getLanguage();
 
 		if (!$app->isClient('api'))
 		{
 			// Load template language files.
 			$template = $app->getTemplate(true)->template;
-			$lang = \JFactory::getLanguage();
 			$lang->load('tpl_' . $template, JPATH_BASE, null, false, true)
 				|| $lang->load('tpl_' . $template, JPATH_THEMES . "/$template", null, false, true);
 		}
@@ -377,21 +378,24 @@ class ComponentHelper
 			// Dispatch the component.
 			$contents = static::dispatchComponent(new $class($app, $app->input));
 		}
-		else
+		elseif (file_exists(JPATH_COMPONENT . '/' . $file . '.php'))
 		{
-			$path = JPATH_COMPONENT . '/' . $file . '.php';
-
-			// If component file doesn't exist throw error
-			if (!file_exists($path))
-			{
-				throw new \Exception(\JText::_('JLIB_APPLICATION_ERROR_COMPONENT_NOT_FOUND'), 404);
-			}
-
 			// Load common and local language files.
 			$lang->load($option, JPATH_BASE, null, false, true) || $lang->load($option, JPATH_COMPONENT, null, false, true);
 
 			// Execute the component.
-			$contents = static::executeComponent($path);
+			$contents = static::executeComponent(JPATH_COMPONENT . '/' . $file . '.php');
+		}
+		elseif ($app->isClient('api'))
+		{
+			// We're in the API App and the component doesn't have a API integration yet. So we are going to use our
+			// 'special' dispatcher that is going to pipe all it's traffic through, and do it's own rendering. We just
+			// need some mappings we'll grab from the existing (and previously unused) $params array
+			$contents = static::dispatchComponent(new ApiDispatcher($app, $app->input));
+		}
+		else
+		{
+			throw new \Exception(\JText::_('JLIB_APPLICATION_ERROR_COMPONENT_NOT_FOUND'), 404);
 		}
 
 		// Revert the scope

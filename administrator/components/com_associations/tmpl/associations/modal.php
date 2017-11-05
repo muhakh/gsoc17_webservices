@@ -19,7 +19,6 @@ if ($app->isClient('site'))
 }
 
 JHtml::_('jquery.framework');
-JHtml::_('bootstrap.tooltip', '.hasTooltip', array('placement' => 'bottom'));
 JHtml::_('behavior.multiselect');
 JHtml::_('formbehavior.chosen', 'select');
 
@@ -49,7 +48,7 @@ JHtml::_('script', 'com_associations/admin-associations-modal.min.js', false, tr
 	<div id="j-main-container" class="col-md-10">
 <?php else : ?>
 	<div id="j-main-container">
-<?php endif;?>
+<?php endif; ?>
 <?php echo JLayoutHelper::render('joomla.searchtools.default', array('view' => $this)); ?>
 	<?php if (empty($this->items)) : ?>
 		<div class="alert alert-warning alert-no-items">
